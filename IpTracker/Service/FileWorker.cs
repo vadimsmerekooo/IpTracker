@@ -8,11 +8,11 @@ namespace IpTracker.Service
     {
         public bool Exist(string path)
         {
-            path = path.Trim().Replace("\"", "");
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw new Exception($"Not correct enter path.");
             }
+            path = path.Trim().Replace("\"", "");
             if (File.Exists(path))
             {
                 return true;
@@ -21,11 +21,11 @@ namespace IpTracker.Service
         }
         public bool ExistDirectory(string path)
         {
-            path = path.Trim().Replace("\"", "");
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw new Exception($"Not correct enter path.");
             }
+            path = path.Trim().Replace("\"", "");
             if (Directory.Exists(path))
             {
                 return true;
@@ -35,6 +35,10 @@ namespace IpTracker.Service
 
         public HashSet<IpAdress> Read(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new Exception($"Not correct enter path.");
+            }
             path = path.Trim().Replace("\"", "");
             if (Exist(path) is bool)
             {
@@ -48,6 +52,10 @@ namespace IpTracker.Service
         }
         public bool ReadConfig(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new Exception($"Not correct enter path.");
+            }
             path = path.Trim().Replace("\"", "");
             if (Exist(path) is bool)
             {
@@ -56,9 +64,9 @@ namespace IpTracker.Service
                 {
                     foreach (var configItem in readText)
                     {
-                        var _configItem = configItem.Split(":");
-                        var _configItemValue = configItem.Replace($"{_configItem[0]}:", "");
-                        switch(_configItem[0])
+                        var _configItem = configItem.Trim().Split(":");
+                        var _configItemValue = configItem.Trim().Replace($"{_configItem[0]}:", "");
+                        switch(_configItem[0].Trim())
                         {
                             case "--file-log":
                                 if (!String.IsNullOrEmpty(_configItemValue) && Exist(_configItemValue))
@@ -73,8 +81,7 @@ namespace IpTracker.Service
                                 }
                                 break;
                             case "--address-start":
-                                IPAddress ip;
-                                if (!String.IsNullOrEmpty(_configItemValue) && IPAddress.TryParse(_configItemValue, out ip))
+                                if (!String.IsNullOrEmpty(_configItemValue) && IPAddress.TryParse(_configItemValue, out IPAddress ip))
                                 {
                                     Config._adressStart = ip;
                                 }
@@ -82,8 +89,7 @@ namespace IpTracker.Service
                             case "--address-mask":
                                 break;
                             case "--time-start":
-                                DateTime dateTime;
-                                if (!String.IsNullOrEmpty(_configItemValue) && DateTime.TryParse(_configItemValue, out dateTime))
+                                if (!String.IsNullOrEmpty(_configItemValue) && DateTime.TryParse(_configItemValue, out DateTime dateTime))
                                 {
                                     Config._timeStart = dateTime;
                                 }

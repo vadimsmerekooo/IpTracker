@@ -1,0 +1,6 @@
+--file-log: F:\GitHub\IpTracker\IpTracker\resources\inputFile.txt
+--file-output: F:\GitHub\IpTracker\IpTracker\resources
+--address-start:
+--address-mask:
+--time-start:
+--time-end:

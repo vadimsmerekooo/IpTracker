@@ -89,17 +89,20 @@ static bool ConfigMenu()
                     if(addressStart == "0")
                     {
                         Config._adressStart = null;
+                        WriteLine($"Parametr --address-start update success.\n Press key...", ConsoleColor.Green);
+                        Console.ReadKey();
+                        break;
                     }
                     if (System.Net.IPAddress.TryParse(addressStart, out IPAddress ipStart))
                     {
                         Config._adressStart = ipStart;
-                        ipw.UpdateIpListConfig();
                         WriteLine($"Parametr --address-start {ipStart} update success.\n Press key...", ConsoleColor.Green);
                         Console.ReadKey();
                         break;
                     }
                     WriteLine($"Parametr --address-start {addressStart} update field. Not valid value.", ConsoleColor.Red);
                 }
+                ipw.UpdateIpListConfig();
                 return true;
             case "3":
                 while (true)
@@ -112,16 +115,23 @@ static bool ConfigMenu()
                     }
                     Console.Write("Please enter value for parametr --address-mask (192.168.100.255): ");
                     var addressMask = Console.ReadLine();
+                    if(addressMask == "0")
+                    {
+                        Config._adressMask = null;
+                        WriteLine($"Parametr --address-mask update success.\n Press key...", ConsoleColor.Green);
+                        Console.ReadKey();
+                        break;
+                    }
                     if (System.Net.IPAddress.TryParse(addressMask, out IPAddress ipMask))
                     {
                         Config._adressMask = ipMask;
-                        ipw.UpdateIpListConfig();
                         WriteLine($"Parametr --address-mask {ipMask} update success.\n Press key...", ConsoleColor.Green);
                         Console.ReadKey();
                         break;
                     }
                     WriteLine($"Parametr --address-mask {addressMask} update field. Not valid value.", ConsoleColor.Red);
                 }
+                ipw.UpdateIpListConfig();
                 return true;
             case "4":
                 while (true)
@@ -131,11 +141,14 @@ static bool ConfigMenu()
                     if (timeStart == "0")
                     {
                         Config._timeStart = DateTime.MinValue;
+                        Config._timeEnd = DateTime.MinValue;
+                        WriteLine($"Parametr --time-start update success.\n Press key...", ConsoleColor.Green);
+                        Console.ReadKey();
+                        break;
                     }
                     if (DateTime.TryParse(timeStart, out DateTime dateTimeStart))
                     {
                         Config._timeStart = dateTimeStart;
-                        ipw.UpdateIpListConfig();
                         WriteLine($"Parametr --time-start {dateTimeStart} update success.\n Press key...", ConsoleColor.Green);
                         Console.ReadKey();
                         break;
@@ -143,6 +156,7 @@ static bool ConfigMenu()
                     WriteLine($"Parametr --time-start {dateTimeStart} update field. Not valid value.", ConsoleColor.Red);
 
                 }
+                ipw.UpdateIpListConfig();
                 return true;
             case "5":
                 while (true)
@@ -158,11 +172,13 @@ static bool ConfigMenu()
                     if (timeEnd == "0")
                     {
                         Config._timeEnd = DateTime.MinValue;
+                        WriteLine($"Parametr --time-end update success.\n Press key...", ConsoleColor.Green);
+                        Console.ReadKey();
+                        break;
                     }
                     if (DateTime.TryParse(timeEnd, out DateTime dateTimeEnd) && Config._timeStart <= dateTimeEnd)
                     {
                         Config._timeEnd = dateTimeEnd;
-                        ipw.UpdateIpListConfig();
                         WriteLine($"Parametr --time-end {dateTimeEnd} update success.\n Press key...", ConsoleColor.Green);
                         Console.ReadKey();
                         break;
@@ -170,6 +186,7 @@ static bool ConfigMenu()
                     WriteLine($"Parametr --time-end {dateTimeEnd} update field. Not valid value.", ConsoleColor.Red);
 
                 }
+                ipw.UpdateIpListConfig();
                 return true;
             case "6":
                 WriteLineConfig();
@@ -210,8 +227,8 @@ static bool SetFileLogConfig()
                     WriteLine($"File log read success. ", ConsoleColor.Green);
                     if (Config.IpAdressList.Count > 0)
                     {
-                        Config._timeStart = Config._timeStart == DateTime.MinValue ? Config.IpAdressList.OrderBy(d => d.GetFirstConnectDateTime()).First().DateTime.First() : Config._timeStart;
-                        Config._timeEnd = Config._timeEnd == DateTime.MinValue ? Config.IpAdressList.OrderByDescending(d => d.GetLastConnectDateTime()).First().DateTime.Last() : Config._timeEnd;
+                        Config._timeStart = Config._timeStart == DateTime.MinValue ? Config.GetFirstDateTime() : Config._timeStart;
+                        Config._timeEnd = Config._timeEnd == DateTime.MinValue ? Config.GetLastDateTime() : Config._timeEnd;
                         WriteLine($"Count log ip list: {Config.IpAdressList.Count}", ConsoleColor.Yellow);
                         Config.IpAdressList = new IpAdressWorker().SortIpListConfig();
                         WriteLine($"Count ip list sorted by parametrs: {Config.IpAdressList.Count}", ConsoleColor.Green);
@@ -274,8 +291,8 @@ static bool LoadConfigFile()
                     WriteLine($"File log read success. ", ConsoleColor.Green);
                     if (Config.IpAdressList.Count > 0)
                     {
-                        Config._timeStart = Config._timeStart == DateTime.MinValue ? Config.IpAdressList.OrderBy(d => d.GetFirstConnectDateTime()).First().DateTime.First() : Config._timeStart;
-                        Config._timeEnd = Config._timeEnd == DateTime.MinValue ? Config.IpAdressList.OrderByDescending(d => d.GetLastConnectDateTime()).First().DateTime.Last() : Config._timeEnd;
+                        Config._timeStart = Config._timeStart == DateTime.MinValue ? Config.GetFirstDateTime() : Config._timeStart;
+                        Config._timeEnd = Config._timeEnd == DateTime.MinValue ? Config.GetLastDateTime() : Config._timeEnd;
                         WriteLine($"Count log ip list: {Config.IpAdressList.Count}", ConsoleColor.Yellow);
                         Config.IpAdressList = new IpAdressWorker().SortIpListConfig();
                         WriteLine($"Count ip list sorted by parametrs: {Config.IpAdressList.Count}", ConsoleColor.Green);

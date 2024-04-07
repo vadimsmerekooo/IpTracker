@@ -49,7 +49,12 @@ namespace IpTracker.Service
 
         public HashSet<IpAdress> SortIpListConfig()
         {
+            Config.IpAdressList = new FileWorker().Read(Config._fileLogPath);
             HashSet<IpAdress> ipList = new HashSet<IpAdress>();
+
+            Config._timeStart = Config._timeStart == DateTime.MinValue ? Config.GetFirstDateTime() : Config._timeStart;
+            Config._timeEnd = Config._timeEnd == DateTime.MinValue ? Config.GetLastDateTime() : Config._timeEnd;
+
             foreach (var ipItem in Config.IpAdressList)
             {
                 if (ipItem.DateTime.Any(d => d >= Config._timeStart && d <= Config._timeEnd) && IsInRange(ipItem.Ip, Config._adressStart, Config._adressMask))

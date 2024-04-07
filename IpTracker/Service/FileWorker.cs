@@ -122,17 +122,16 @@ namespace IpTracker.Service
                 throw new Exception($"Not correct out path folder.");
             }
             path = path.Trim().Replace("\"", "");
-            using (StreamWriter sw = new StreamWriter(path, true))
+            using (StreamWriter sw = new StreamWriter(path))
             {
                 sw.WriteLine($"Parametrs: \n --address-start => {Config._adressStart}\n  --address-mask => {Config._adressMask}\n --time-start => {Config._timeStart} \n --time-end => {Config._timeEnd}\n __________________");
                 foreach (var ip in ipAddresses)
                 {
-                    string dateTimes = string.Empty;
+                    sw.WriteLine($"{ip.Ip}: Count connect -> {ip.DateTime.Count}");
                     foreach (var ipDTC in ip.DateTime)
                     {
-                        dateTimes += $"{ipDTC:yyyy-MM-dd HH:mm:ss},";
+                        sw.WriteLine($"                {ipDTC:yyyy-MM-dd HH:mm:ss};");
                     }
-                    sw.WriteLine($"{ip.Ip}: Count connect -> {ip.DateTime.Count}, DateTime -> {dateTimes}");
                 }
             }
             return true;

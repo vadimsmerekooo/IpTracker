@@ -18,7 +18,11 @@ namespace IpTracker.Service
         public static IPAddress _adressMask { get;set; }
         public static DateTime _timeStart { get; set; }
         public static DateTime _timeEnd { get; set; }
-        
+
+        public static DateTime GetFirstDateTime() => IpAdressList.OrderBy(d => d.GetFirstConnectDateTime()).First().DateTime.First();
+        public static DateTime GetLastDateTime() => IpAdressList.OrderByDescending(d => d.GetLastConnectDateTime()).First().DateTime.Last();
+
+
         public static bool IsEmpty()
         {
             return string.IsNullOrEmpty(_fileLogPath)

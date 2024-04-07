@@ -1,6 +1,4 @@
 --file-log: F:\GitHub\IpTracker\IpTracker\resources\inputFile.txt
 --file-output: F:\GitHub\IpTracker\IpTracker\resources
---address-start:
---address-mask:
---time-start:
---time-end:
+--address-start: 192.168.100.14
+--address-mask: 192.168.100.255

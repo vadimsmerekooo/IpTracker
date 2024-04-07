@@ -10,7 +10,7 @@ namespace IpTracker.Service
 {
     internal interface IFile
     {
-        public bool Write(string path, string text);
+        public bool Write(string path, HashSet<IpAdress> ipAdresses);
         public HashSet<IpAdress> Read(string path);
         public bool Exist(string path);
     }

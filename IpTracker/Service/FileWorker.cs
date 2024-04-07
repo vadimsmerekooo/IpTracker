@@ -65,7 +65,7 @@ namespace IpTracker.Service
                     foreach (var configItem in readText)
                     {
                         var _configItem = configItem.Trim().Split(":");
-                        var _configItemValue = configItem.Trim().Replace($"{_configItem[0]}:", "");
+                        var _configItemValue = configItem.Replace($"{_configItem[0]}:", "").Trim();
                         switch(_configItem[0].Trim())
                         {
                             case "--file-log":
@@ -87,6 +87,10 @@ namespace IpTracker.Service
                                 }
                                 break;
                             case "--address-mask":
+                                if (Config._adressStart != null && !String.IsNullOrEmpty(_configItemValue) && IPAddress.TryParse(_configItemValue, out IPAddress ipMask))
+                                {
+                                    Config._adressMask = ipMask;
+                                }
                                 break;
                             case "--time-start":
                                 if (!String.IsNullOrEmpty(_configItemValue) && DateTime.TryParse(_configItemValue, out DateTime dateTime))
@@ -95,9 +99,12 @@ namespace IpTracker.Service
                                 }
                                 break;
                             case "--time-end":
-                                if (!String.IsNullOrEmpty(_configItemValue) && DateTime.TryParse(_configItemValue, out dateTime))
+                                if (Config._timeStart != DateTime.MinValue && !String.IsNullOrEmpty(_configItemValue) && DateTime.TryParse(_configItemValue, out dateTime))
                                 {
-                                    Config._timeStart = dateTime;
+                                    if(Config._timeStart <= dateTime)
+                                    {
+                                        Config._timeEnd = dateTime;
+                                    }
                                 }
                                 break;
                         }
@@ -108,10 +115,27 @@ namespace IpTracker.Service
             throw new Exception($"Error read file config: {path} - not found.");
         }
 
-        public bool Write(string path, string text)
+        public bool Write(string path, HashSet<IpAdress> ipAddresses)
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new Exception($"Not correct out path folder.");
+            }
             path = path.Trim().Replace("\"", "");
-            throw new NotImplementedException();
+            using (StreamWriter sw = new StreamWriter(path, true))
+            {
+                sw.WriteLine($"Parametrs: \n --address-start => {Config._adressStart}\n  --address-mask => {Config._adressMask}\n --time-start => {Config._timeStart} \n --time-end => {Config._timeEnd}\n __________________");
+                foreach (var ip in ipAddresses)
+                {
+                    string dateTimes = string.Empty;
+                    foreach (var ipDTC in ip.DateTime)
+                    {
+                        dateTimes += $"{ipDTC:yyyy-MM-dd HH:mm:ss},";
+                    }
+                    sw.WriteLine($"{ip.Ip}: Count connect -> {ip.DateTime.Count}, DateTime -> {dateTimes}");
+                }
+            }
+            return true;
         }
     }
 }

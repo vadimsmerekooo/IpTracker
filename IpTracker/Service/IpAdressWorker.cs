@@ -19,9 +19,9 @@ namespace IpTracker.Service
                 if (regex.Count > 0 && System.Net.IPAddress.TryParse(regex[0].ToString(), out IPAddress ip))
                 {
                     regex = Regex.Matches(ipLine, dateRegex);
-                    if(regex.Count > 0 && DateTime.TryParse(regex[0].ToString(), out DateTime dateTime))
+                    if (regex.Count > 0 && DateTime.TryParse(regex[0].ToString(), out DateTime dateTime))
                     {
-                        if(ipList.Any(ipe => ipe.Ip.Equals(ip)))
+                        if (ipList.Any(ipe => ipe.Ip.Equals(ip)))
                         {
                             ipList.FirstOrDefault(ipe => ipe.Ip.Equals(ip)).Add(dateTime);
                         }
@@ -34,28 +34,63 @@ namespace IpTracker.Service
             }
             return ipList;
         }
+
+        public void UpdateIpListConfig()
+        {
+            try
+            {
+                Config.IpAdressList = SortIpListConfig();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error any update ip list. Try again");
+            }
+        }
+
         public HashSet<IpAdress> SortIpListConfig()
         {
-            HashSet<IPAddress> ipList = new HashSet<IPAddress>();
+            HashSet<IpAdress> ipList = new HashSet<IpAdress>();
             foreach (var ipItem in Config.IpAdressList)
             {
-                IPAddress mask;
-                foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
-                    foreach (UnicastIPAddressInformation unicastIPAddressInformation in adapter.GetIPProperties().UnicastAddresses)
-                        if (unicastIPAddressInformation.Address.AddressFamily == AddressFamily.InterNetwork)
-                            if (ipItem.Equals(unicastIPAddressInformation.Address))
-                                mask = unicastIPAddressInformation.IPv4Mask;
-                if (ipItem.DateTime.Any(d => d >= Config._timeStart && d <= Config._timeStart))
+                if (ipItem.DateTime.Any(d => d >= Config._timeStart && d <= Config._timeEnd) && IsInRange(ipItem.Ip, Config._adressStart, Config._adressMask))
                 {
-
+                    IpAdress ip = ipItem;
+                    foreach (var ipDTC in ipItem.DateTime)
+                    {
+                        if (ipDTC < Config._timeStart || ipDTC > Config._timeEnd)
+                            ip.DateTime.Remove(ipDTC);
+                    }
+                    ipList.Add(ipItem);
                 }
-
             }
+            return ipList;
+        }
+        bool IsInRange(IPAddress ip, IPAddress addressStart, IPAddress addressMask)
+        {
+            if (ip is null) return false;
+            if (addressStart is null) return true;
 
 
+            bool areEqual = false;
+            byte[] ipBytes = ip.GetAddressBytes();
+            byte[] ipAddressStartBytes = addressStart.GetAddressBytes();
 
 
-            return null;
+            for (int i = 0; i < ipBytes.Length; i++)
+            {
+                if (addressMask is null)
+                {
+                    areEqual = ipBytes[i] >= ipAddressStartBytes[i];
+                }
+                else
+                {
+                    byte[] ipAddressMaskBytes = addressMask.GetAddressBytes();
+                    areEqual = ipBytes[i] >= ipAddressStartBytes[i] && ipBytes[i] <= ipAddressMaskBytes[i];
+                }
+                if (!areEqual)
+                    break;
+            }
+            return areEqual;
         }
     }
 }
